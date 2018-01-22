@@ -19,6 +19,16 @@ $.ui = $.ui || {};
 
 var version = $.ui.version = "1.12.1";
 
+// Polyfill
+// $.expr[ ":" ] is deprecated.
+if (!$.expr.pseudos) {
+    $.expr.pseudos = $.expr[":"];
+}
+// Polyfill
+// $.unique has been renamed to $.uniqueSort
+if (!$.uniqueSort) {
+    $.uniqueSort = $.unique;
+}
 
 /*!
  * jQuery UI Widget 1.12.1
@@ -80,7 +90,7 @@ $.widget = function( name, base, prototype ) {
 	}
 
 	// Create selector for plugin
-	$.expr[ ":" ][ fullName.toLowerCase() ] = function( elem ) {
+	$.expr.pseudos[ fullName.toLowerCase() ] = function( elem ) {
 		return !!$.data( elem, fullName );
 	};
 
@@ -1246,7 +1256,7 @@ var position = $.ui.position;
 //>>docs: http://api.jqueryui.com/data-selector/
 
 
-var data = $.extend( $.expr[ ":" ], {
+var data = $.extend( $.expr.pseudos, {
 	data: $.expr.createPseudo ?
 		$.expr.createPseudo( function( dataName ) {
 			return function( elem ) {
@@ -1361,7 +1371,7 @@ function visible( element ) {
 	return visibility !== "hidden";
 }
 
-$.extend( $.expr[ ":" ], {
+$.extend( $.expr.pseudos, {
 	focusable: function( element ) {
 		return $.ui.focusable( element, $.attr( element, "tabindex" ) != null );
 	}
@@ -1671,7 +1681,7 @@ var scrollParent = $.fn.scrollParent = function( includeHidden ) {
 
 
 
-var tabbable = $.extend( $.expr[ ":" ], {
+var tabbable = $.extend( $.expr.pseudos, {
 	tabbable: function( element ) {
 		var tabIndex = $.attr( element, "tabindex" ),
 			hasTabindex = tabIndex != null;
@@ -8791,7 +8801,7 @@ var widgetsControlgroup = $.widget( "ui.controlgroup", {
 				} );
 		} );
 
-		this.childWidgets = $( $.unique( childWidgets ) );
+		this.childWidgets = $( $.uniqueSort( childWidgets ) );
 		this._addClass( this.childWidgets, "ui-controlgroup-item" );
 	},
 
@@ -10461,7 +10471,7 @@ $.extend( Datepicker.prototype, {
 			inst = this._getInst( obj ),
 			isRTL = this._get( inst, "isRTL" );
 
-		while ( obj && ( obj.type === "hidden" || obj.nodeType !== 1 || $.expr.filters.hidden( obj ) ) ) {
+		while ( obj && ( obj.type === "hidden" || obj.nodeType !== 1 || $.expr.pseudos.hidden( obj ) ) ) {
 			obj = obj[ isRTL ? "previousSibling" : "nextSibling" ];
 		}
 
@@ -14798,7 +14808,7 @@ $.widget( "ui.tabs", {
 		// Take disabling tabs via class attribute from HTML
 		// into account and update option properly.
 		if ( $.isArray( options.disabled ) ) {
-			options.disabled = $.unique( options.disabled.concat(
+			options.disabled = $.uniqueSort( options.disabled.concat(
 				$.map( this.tabs.filter( ".ui-state-disabled" ), function( li ) {
 					return that.tabs.index( li );
 				} )
@@ -17051,12 +17061,12 @@ $.fn.extend( {
 
 ( function() {
 
-if ( $.expr && $.expr.filters && $.expr.filters.animated ) {
-	$.expr.filters.animated = ( function( orig ) {
+if ( $.expr && $.expr.pseudos && $.expr.pseudos.animated ) {
+	$.expr.pseudos.animated = ( function( orig ) {
 		return function( elem ) {
 			return !!$( elem ).data( dataSpaceAnimated ) || orig( elem );
 		};
-	} )( $.expr.filters.animated );
+	} )( $.expr.pseudos.animated );
 }
 
 if ( $.uiBackCompat !== false ) {
